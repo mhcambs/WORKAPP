@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>筋トレ記録 & オーバーロード提案アプリ</title>
+    <title>筋トレ記録</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
@@ -42,7 +42,6 @@
             font-size: 1.1em;
         }
 
-        /* タブスタイル */
         .tabs {
             display: flex;
             gap: 10px;
@@ -112,9 +111,9 @@
             border-color: #667eea;
         }
 
-        .three-cols {
+        .two-cols {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 15px;
         }
 
@@ -137,23 +136,23 @@
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
-        .add-set-btn {
+        .end-training-btn {
             width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            padding: 15px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
             transition: transform 0.3s;
             margin-top: 10px;
         }
 
-        .add-set-btn:hover {
+        .end-training-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(56, 239, 125, 0.4);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
         }
 
         .suggestion-section {
@@ -375,7 +374,7 @@
         }
 
         .asuka-comment::before {
-            content: "👧 明日香: ";
+            content: "👧 アスカ: ";
             color: #e17055;
         }
 
@@ -411,7 +410,6 @@
             border-left: 3px solid #ff9800;
         }
 
-        /* 編集モーダル */
         .modal {
             display: none;
             position: fixed;
@@ -481,25 +479,21 @@
 </head>
 <body>
     <div class="container">
-        <h1>💪 筋トレ記録アプリ</h1>
+        <h1>💪 筋トレ記録</h1>
         <p class="subtitle">科学的なオーバーロード提案で効率的に成長</p>
 
         <div id="message" class="message"></div>
         <div id="asukaComment" class="asuka-comment"></div>
 
-        <!-- タブメニュー -->
         <div class="tabs">
             <button class="tab active" onclick="switchTab('record')">📝 トレーニングの記録</button>
             <button class="tab" onclick="switchTab('stats')">📊 トレーニングの統計</button>
             <button class="tab" onclick="switchTab('history')">📚 トレーニングの履歴</button>
         </div>
 
-        <!-- 記録タブ -->
         <div id="recordTab" class="tab-content active">
-            <!-- オーバーロード提案 -->
             <div id="suggestionSection" class="suggestion-section"></div>
 
-            <!-- 入力セクション -->
             <div class="input-section">
                 <h2 style="color: #667eea; margin-bottom: 20px;">📝 トレーニング記録</h2>
                 
@@ -546,13 +540,12 @@
                     <div id="previousSetInfo" class="previous-set-info"></div>
                 </div>
 
-                <!-- 今日のセット表示 -->
                 <div id="currentSets" class="current-sets">
                     <h4>今日のセット</h4>
                     <div id="currentSetsList"></div>
                 </div>
 
-                <div class="three-cols">
+                <div class="two-cols">
                     <div class="input-group">
                         <label>重量 (kg)</label>
                         <input type="number" id="weight" placeholder="50" step="0.5" min="0">
@@ -561,18 +554,13 @@
                         <label>回数</label>
                         <input type="number" id="reps" placeholder="10" min="1">
                     </div>
-                    <div class="input-group">
-                        <label>セット数</label>
-                        <input type="number" id="sets" placeholder="1" min="1" value="1">
-                    </div>
                 </div>
 
-                <button class="record-btn" onclick="recordWorkout()">セットを記録</button>
-                <button class="add-set-btn" onclick="addAnotherSet()">同じ種目でセット追加</button>
+                <button class="record-btn" onclick="recordSet()">セットを記録</button>
+                <button class="end-training-btn" onclick="endTraining()">トレーニング終了</button>
             </div>
         </div>
 
-        <!-- 統計タブ -->
         <div id="statsTab" class="tab-content">
             <div class="charts-section">
                 <div class="chart-container">
@@ -580,13 +568,16 @@
                     <canvas id="volumeChart"></canvas>
                 </div>
                 <div class="chart-container">
-                    <h3>🏋️ 種目別パフォーマンス</h3>
+                    <h3>💪 部位別総負荷量の推移</h3>
+                    <canvas id="bodyPartChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>🏋️ 種目別最大重量</h3>
                     <canvas id="exerciseChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- 履歴タブ -->
         <div id="historyTab" class="tab-content">
             <div class="button-group">
                 <button class="export-btn" onclick="exportToMarkdown()">マークダウンでエクスポート</button>
@@ -600,7 +591,6 @@
         </div>
     </div>
 
-    <!-- 編集モーダル -->
     <div id="editModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -610,7 +600,7 @@
                 <label>種目</label>
                 <input type="text" id="editExercise" readonly>
             </div>
-            <div class="three-cols">
+            <div class="two-cols">
                 <div class="input-group">
                     <label>重量 (kg)</label>
                     <input type="number" id="editWeight" step="0.5" min="0">
@@ -618,10 +608,6 @@
                 <div class="input-group">
                     <label>回数</label>
                     <input type="number" id="editReps" min="1">
-                </div>
-                <div class="input-group">
-                    <label>セット数</label>
-                    <input type="number" id="editSets" min="1">
                 </div>
             </div>
             <div class="modal-buttons">
@@ -656,11 +642,6 @@
                 "ちょっとー！もっと気合い入れなさいよ！...って、体調悪そうね。今日は許してあげる。",
                 "はぁ...アンタらしくないわね。疲れてるなら素直に休みなさい！アタシが言うんだから！",
                 "前回超えられなかった？別にいいわよ！継続が大事なんだから！...わかってるでしょうね！"
-            ],
-            normal: [
-                "よし、記録したわよ！次も頑張りなさい！",
-                "いいわね、その調子で続けなさい！",
-                "ふん、悪くないわ。次も期待してるわよ！"
             ]
         };
 
@@ -689,11 +670,12 @@
             'ハンギングレッグレイズ': { type: 'compound', repRange: '8-15', description: '腹筋下部と腸腰筋。上級者向け。', strategy: '回数を優先的に増やす', weightIncrements: [0, 0], tips: '反動を使わず、膝を胸に近づける。', bodyPart: '腹筋' }
         };
 
-        let workoutHistory = JSON.parse(localStorage.getItem('workoutHistory_v6')) || [];
+        let workoutHistory = JSON.parse(localStorage.getItem('workoutHistory_v7')) || [];
         let todaySets = [];
         let currentExercise = '';
         let volumeChart = null;
         let exerciseChart = null;
+        let bodyPartChart = null;
         let editingIndex = -1;
 
         function switchTab(tabName) {
@@ -717,9 +699,8 @@
             return comments[Math.floor(Math.random() * comments.length)];
         }
 
-        function showAsukaComment(type) {
+        function showAsukaComment(comment) {
             const commentDiv = document.getElementById('asukaComment');
-            const comment = getRandomComment(type);
             commentDiv.textContent = comment;
             commentDiv.style.display = 'block';
             setTimeout(() => { commentDiv.style.display = 'none'; }, 5000);
@@ -755,7 +736,7 @@
                     }
                     
                     prevSetDiv.style.display = 'block';
-                    prevSetDiv.innerHTML = `📋 <strong>前回の記録:</strong> ${lastWorkout.weight}kg × ${lastWorkout.reps}回 × ${lastWorkout.sets}セット（${lastDate.toLocaleDateString('ja-JP')}）`;
+                    prevSetDiv.innerHTML = `📋 <strong>前回の記録:</strong> ${lastWorkout.weight}kg × ${lastWorkout.reps}回（${lastDate.toLocaleDateString('ja-JP')}）`;
                     
                     if (todaySets.length === 0 || currentExercise !== exercise) {
                         document.getElementById('weight').value = lastWorkout.weight;
@@ -784,133 +765,297 @@
             
             if (todaySets.length > 0) {
                 currentSetsDiv.style.display = 'block';
-                currentSetsList.innerHTML = todaySets.map((set, index) => `<div class="set-item">セット${index + 1}: ${set.weight}kg × ${set.reps}回</div>`).join('');
+                currentSetsList.innerHTML = todaySets.map((set, index) => 
+                    `<div class="set-item">セット${index + 1}: ${set.weight}kg × ${set.reps}回</div>`
+                ).join('');
             } else {
                 currentSetsDiv.style.display = 'none';
             }
         }
 
-        function recordWorkout() {
+        function recordSet() {
             const exercise = document.getElementById('exercise').value;
             const weight = parseFloat(document.getElementById('weight').value);
             const reps = parseInt(document.getElementById('reps').value);
-            const sets = parseInt(document.getElementById('sets').value);
 
-            if (!exercise || !weight || !reps || !sets) {
-                showMessage('すべての項目を入力してください', 'error');
+            if (!exercise || !weight || !reps) {
+                showMessage('種目、重量、回数を入力してください', 'error');
                 return;
             }
 
-            const workout = {
-                date: new Date().toISOString(),
-                exercise,
-                weight,
-                reps,
-                sets,
-                volume: weight * reps * sets
-            };
-
-            for (let i = 0; i < sets; i++) {
-                todaySets.push({ weight, reps });
-            }
-
-            workoutHistory.unshift(workout);
-            localStorage.setItem('workoutHistory_v6', JSON.stringify(workoutHistory));
-
-            const sameExercise = workoutHistory.filter(w => w.exercise === exercise);
-            const previousWorkout = sameExercise.length > 1 ? sameExercise[1] : null;
-            
-            let commentType = 'normal';
-            if (previousWorkout && !isSameDay(previousWorkout.date, workout.date)) {
-                if (workout.volume > previousWorkout.volume) {
-                    commentType = 'success';
-                } else if (workout.volume < previousWorkout.volume) {
-                    commentType = 'failure';
-                }
-            }
-            
-            showAsukaComment(commentType);
+            todaySets.push({ weight, reps });
             updateCurrentSets();
-            showMessage('✅ セットを記録しました！', 'success');
-
-            document.getElementById('reps').value = reps;
-            document.getElementById('sets').value = '1';
+            showMessage('✅ セットを記録しました！次のセットを入力してください。', 'success');
             document.getElementById('suggestionSection').style.display = 'none';
         }
 
-        function addAnotherSet() {
+        function endTraining() {
             const exercise = document.getElementById('exercise').value;
+            
             if (!exercise) {
                 showMessage('種目を選択してください', 'error');
                 return;
             }
-            showMessage('✅ 同じ重量・回数で続けてください', 'success');
+
+            if (todaySets.length === 0) {
+                showMessage('少なくとも1セット記録してください', 'error');
+                return;
+            }
+
+            const totalVolume = todaySets.reduce((sum, set) => sum + (set.weight * set.reps), 0);
+            const avgWeight = todaySets.reduce((sum, set) => sum + set.weight, 0) / todaySets.length;
+            const avgReps = todaySets.reduce((sum, set) => sum + set.reps, 0) / todaySets.length;
+
+            todaySets.forEach(set => {
+                const workout = {
+                    date: new Date().toISOString(),
+                    exercise,
+                    weight: set.weight,
+                    reps: set.reps,
+                    sets: 1,
+                    volume: set.weight * set.reps
+                };
+                workoutHistory.unshift(workout);
+            });
+
+            localStorage.setItem('workoutHistory_v7', JSON.stringify(workoutHistory));
+
+            const sameExercise = workoutHistory.filter(w => w.exercise === exercise && !isSameDay(w.date, new Date().toISOString()));
+            if (sameExercise.length > 0) {
+                const previousSession = [];
+                const previousDate = sameExercise[0].date;
+                sameExercise.forEach(w => {
+                    if (isSameDay(w.date, previousDate)) {
+                        previousSession.push(w);
+                    }
+                });
+
+                const previousVolume = previousSession.reduce((sum, w) => sum + w.volume, 0);
+                
+                let commentType = 'success';
+                if (totalVolume > previousVolume) {
+                    commentType = 'success';
+                } else {
+                    commentType = 'failure';
+                }
+                
+                const comment = getRandomComment(commentType);
+                showAsukaComment(comment);
+            } else {
+                showAsukaComment('よし、初めての記録ね！次回はこれを超えるのよ！');
+            }
+
+            showMessage(`✅ トレーニング終了！合計${todaySets.length}セット記録しました。`, 'success');
+            
+            todaySets = [];
+            currentExercise = '';
+            document.getElementById('weight').value = '';
+            document.getElementById('reps').value = '';
+            updateCurrentSets();
         }
 
-        function showSuggestion(workout) {
-            const strategy = exerciseStrategies[workout.exercise];
+        function showSuggestion(lastWorkout) {
+            const strategy = exerciseStrategies[lastWorkout.exercise];
             const section = document.getElementById('suggestionSection');
             
             section.style.display = 'block';
-            section.innerHTML = `<h2>📈 次回のオーバーロード提案</h2><div class="suggestion-card"><h3>${workout.exercise}</h3><div class="suggestion-item"><strong>前回の記録:</strong> ${workout.weight}kg × ${workout.reps}回 × ${workout.sets}セット<br><strong>総負荷量:</strong> ${workout.volume}kg</div><div class="suggestion-item"><strong>オーバーロード戦略:</strong> ${strategy.strategy}<br><strong>推奨回数範囲:</strong> ${strategy.repRange}回</div></div><div class="suggestion-card"><h3>次回のトレーニング提案</h3>${generateSuggestions(workout, strategy)}</div>`;
+            section.innerHTML = `
+                <h2>📈 次回のオーバーロード提案</h2>
+                <div class="suggestion-card">
+                    <h3>${lastWorkout.exercise}</h3>
+                    <div class="suggestion-item">
+                        <strong>前回の記録:</strong> ${lastWorkout.weight}kg × ${lastWorkout.reps}回<br>
+                        <strong>総負荷量:</strong> ${lastWorkout.volume}kg
+                    </div>
+                    <div class="suggestion-item">
+                        <strong>オーバーロード戦略:</strong> ${strategy.strategy}<br>
+                        <strong>推奨回数範囲:</strong> ${strategy.repRange}回
+                    </div>
+                </div>
+                <div class="suggestion-card">
+                    <h3>次回のトレーニング提案</h3>
+                    ${generateSuggestions(lastWorkout, strategy)}
+                </div>
+            `;
         }
 
         function generateSuggestions(workout, strategy) {
             const suggestions = [];
+            
             strategy.weightIncrements.forEach((increment, index) => {
                 if (increment > 0) {
                     const newWeight = workout.weight + increment;
-                    const volumeWeight = newWeight * workout.reps * workout.sets;
-                    suggestions.push({ title: `重量を+${increment}kg増やす`, desc: `${newWeight}kg × ${workout.reps}回 × ${workout.sets}セット`, volume: volumeWeight, increase: ((volumeWeight - workout.volume) / workout.volume * 100).toFixed(1), priority: (index === 0 && strategy.strategy.includes('重量')) ? '⭐ 推奨' : '' });
+                    const volumeWeight = newWeight * workout.reps;
+                    suggestions.push({
+                        title: `重量を+${increment}kg増やす`,
+                        desc: `${newWeight}kg × ${workout.reps}回`,
+                        volume: volumeWeight,
+                        increase: ((volumeWeight - workout.volume) / workout.volume * 100).toFixed(1),
+                        priority: (index === 0 && strategy.strategy.includes('重量')) ? '⭐ 推奨' : ''
+                    });
                 }
             });
+
             [1, 2].forEach((repIncrease, index) => {
                 const newReps = workout.reps + repIncrease;
-                const volumeReps = workout.weight * newReps * workout.sets;
-                suggestions.push({ title: `回数を+${repIncrease}回増やす`, desc: `${workout.weight}kg × ${newReps}回 × ${workout.sets}セット`, volume: volumeReps, increase: ((volumeReps - workout.volume) / workout.volume * 100).toFixed(1), priority: (index === 0 && strategy.strategy.includes('回数')) ? '⭐ 推奨' : '' });
+                const volumeReps = workout.weight * newReps;
+                suggestions.push({
+                    title: `回数を+${repIncrease}回増やす`,
+                    desc: `${workout.weight}kg × ${newReps}回`,
+                    volume: volumeReps,
+                    increase: ((volumeReps - workout.volume) / workout.volume * 100).toFixed(1),
+                    priority: (index === 0 && strategy.strategy.includes('回数')) ? '⭐ 推奨' : ''
+                });
             });
-            const newSets = workout.sets + 1;
-            const volumeSets = workout.weight * workout.reps * newSets;
-            suggestions.push({ title: 'セット数を増やす', desc: `${workout.weight}kg × ${workout.reps}回 × ${newSets}セット`, volume: volumeSets, increase: ((volumeSets - workout.volume) / workout.volume * 100).toFixed(1), priority: '' });
+
             const smallWeightInc = strategy.weightIncrements[1] || strategy.weightIncrements[0];
             if (smallWeightInc > 0) {
                 const combinedWeight = workout.weight + smallWeightInc;
                 const combinedReps = workout.reps + 1;
-                const volumeCombined = combinedWeight * combinedReps * workout.sets;
-                suggestions.push({ title: '重量と回数を両方増やす', desc: `${combinedWeight}kg × ${combinedReps}回 × ${workout.sets}セット`, volume: volumeCombined, increase: ((volumeCombined - workout.volume) / workout.volume * 100).toFixed(1), priority: strategy.strategy.includes('バランス') ? '⭐ 推奨' : '' });
+                const volumeCombined = combinedWeight * combinedReps;
+                suggestions.push({
+                    title: '重量と回数を両方増やす',
+                    desc: `${combinedWeight}kg × ${combinedReps}回`,
+                    volume: volumeCombined,
+                    increase: ((volumeCombined - workout.volume) / workout.volume * 100).toFixed(1),
+                    priority: strategy.strategy.includes('バランス') ? '⭐ 推奨' : ''
+                });
             }
-            return suggestions.map((s, i) => `<div class="suggestion-item"><strong>オプション${i + 1}: ${s.title} ${s.priority}</strong><br>${s.desc}<br>総負荷量: ${s.volume.toFixed(1)}kg (+${s.increase}%)</div>`).join('');
+
+            return suggestions.map((s, i) => 
+                `<div class="suggestion-item">
+                    <strong>オプション${i + 1}: ${s.title} ${s.priority}</strong><br>
+                    ${s.desc}<br>
+                    総負荷量: ${s.volume.toFixed(1)}kg (+${s.increase}%)
+                </div>`
+            ).join('');
         }
 
         function updateCharts() {
             updateVolumeChart();
+            updateBodyPartChart();
             updateExerciseChart();
         }
 
         function updateVolumeChart() {
             const ctx = document.getElementById('volumeChart').getContext('2d');
             const dateGroups = {};
+            
             workoutHistory.forEach(w => {
                 const date = new Date(w.date).toLocaleDateString('ja-JP');
                 if (!dateGroups[date]) dateGroups[date] = 0;
                 dateGroups[date] += w.volume;
             });
+
             const dates = Object.keys(dateGroups).reverse().slice(-10);
             const volumes = dates.map(d => dateGroups[d]);
+
             if (volumeChart) volumeChart.destroy();
-            volumeChart = new Chart(ctx, { type: 'line', data: { labels: dates, datasets: [{ label: '総負荷量 (kg)', data: volumes, borderColor: '#667eea', backgroundColor: 'rgba(102, 126, 234, 0.1)', tension: 0.4, fill: true }] }, options: { responsive: true, plugins: { legend: { display: true } }, scales: { y: { beginAtZero: true } } } });
+            volumeChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: '総負荷量 (kg)',
+                        data: volumes,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: true } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        function updateBodyPartChart() {
+            const ctx = document.getElementById('bodyPartChart').getContext('2d');
+            const dateBodyPartGroups = {};
+            
+            workoutHistory.forEach(w => {
+                const date = new Date(w.date).toLocaleDateString('ja-JP');
+                const bodyPart = exerciseStrategies[w.exercise]?.bodyPart || 'その他';
+                
+                if (!dateBodyPartGroups[date]) {
+                    dateBodyPartGroups[date] = {};
+                }
+                if (!dateBodyPartGroups[date][bodyPart]) {
+                    dateBodyPartGroups[date][bodyPart] = 0;
+                }
+                dateBodyPartGroups[date][bodyPart] += w.volume;
+            });
+
+            const dates = Object.keys(dateBodyPartGroups).reverse().slice(-10);
+            const bodyParts = ['胸', '背中', '脚', '肩', '腕', '腹筋'];
+            const colors = {
+                '胸': '#FF6384',
+                '背中': '#36A2EB',
+                '脚': '#FFCE56',
+                '肩': '#4BC0C0',
+                '腕': '#9966FF',
+                '腹筋': '#FF9F40'
+            };
+
+            const datasets = bodyParts.map(bodyPart => ({
+                label: bodyPart,
+                data: dates.map(date => dateBodyPartGroups[date]?.[bodyPart] || 0),
+                borderColor: colors[bodyPart],
+                backgroundColor: colors[bodyPart] + '33',
+                tension: 0.4,
+                fill: false
+            }));
+
+            if (bodyPartChart) bodyPartChart.destroy();
+            bodyPartChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: true } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
         }
 
         function updateExerciseChart() {
             const ctx = document.getElementById('exerciseChart').getContext('2d');
             const exerciseMax = {};
+            
             workoutHistory.forEach(w => {
-                if (!exerciseMax[w.exercise] || w.weight > exerciseMax[w.exercise]) exerciseMax[w.exercise] = w.weight;
+                if (!exerciseMax[w.exercise] || w.weight > exerciseMax[w.exercise]) {
+                    exerciseMax[w.exercise] = w.weight;
+                }
             });
+
             const exercises = Object.keys(exerciseMax);
             const maxWeights = exercises.map(e => exerciseMax[e]);
+
             if (exerciseChart) exerciseChart.destroy();
-            exerciseChart = new Chart(ctx, { type: 'bar', data: { labels: exercises, datasets: [{ label: '最大重量 (kg)', data: maxWeights, backgroundColor: 'rgba(102, 126, 234, 0.7)', borderColor: '#667eea', borderWidth: 2 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
+            exerciseChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: exercises,
+                    datasets: [{
+                        label: '最大重量 (kg)',
+                        data: maxWeights,
+                        backgroundColor: 'rgba(102, 126, 234, 0.7)',
+                        borderColor: '#667eea',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
         }
 
         function updateHistory() {
@@ -919,6 +1064,7 @@
                 content.innerHTML = '<p style="color: #999;">まだトレーニング記録がありません</p>';
                 return;
             }
+
             const bodyPartGroups = {};
             workoutHistory.forEach((w, index) => {
                 w.index = index;
@@ -926,18 +1072,34 @@
                 if (!bodyPartGroups[bodyPart]) bodyPartGroups[bodyPart] = [];
                 bodyPartGroups[bodyPart].push(w);
             });
+
             const bodyPartOrder = ['胸', '背中', '脚', '肩', '腕', '腹筋', 'その他'];
             let html = '';
+
             bodyPartOrder.forEach(bodyPart => {
                 if (bodyPartGroups[bodyPart] && bodyPartGroups[bodyPart].length > 0) {
                     html += `<div class="history-group"><h3>💪 ${bodyPart}</h3>`;
                     bodyPartGroups[bodyPart].slice(0, 15).forEach(w => {
                         const date = new Date(w.date);
-                        html += `<div class="history-item"><div class="history-item-content"><strong>${w.exercise}</strong><br>${date.toLocaleDateString('ja-JP')} ${date.toLocaleTimeString('ja-JP', {hour: '2-digit', minute: '2-digit'})}<br>${w.weight}kg × ${w.reps}回 × ${w.sets}セット<br><span style="color: #667eea;">総負荷量: ${w.volume}kg</span></div><div class="history-item-actions"><button class="edit-btn" onclick="openEditModal(${w.index})">編集</button><button class="delete-btn" onclick="deleteWorkout(${w.index})">削除</button></div></div>`;
+                        html += `
+                            <div class="history-item">
+                                <div class="history-item-content">
+                                    <strong>${w.exercise}</strong><br>
+                                    ${date.toLocaleDateString('ja-JP')} ${date.toLocaleTimeString('ja-JP', {hour: '2-digit', minute: '2-digit'})}<br>
+                                    ${w.weight}kg × ${w.reps}回<br>
+                                    <span style="color: #667eea;">総負荷量: ${w.volume}kg</span>
+                                </div>
+                                <div class="history-item-actions">
+                                    <button class="edit-btn" onclick="openEditModal(${w.index})">編集</button>
+                                    <button class="delete-btn" onclick="deleteWorkout(${w.index})">削除</button>
+                                </div>
+                            </div>
+                        `;
                     });
                     html += `</div>`;
                 }
             });
+
             content.innerHTML = html;
         }
 
@@ -947,7 +1109,6 @@
             document.getElementById('editExercise').value = workout.exercise;
             document.getElementById('editWeight').value = workout.weight;
             document.getElementById('editReps').value = workout.reps;
-            document.getElementById('editSets').value = workout.sets;
             document.getElementById('editModal').style.display = 'block';
         }
 
@@ -958,18 +1119,21 @@
 
         function saveEdit() {
             if (editingIndex === -1) return;
+            
             const weight = parseFloat(document.getElementById('editWeight').value);
             const reps = parseInt(document.getElementById('editReps').value);
-            const sets = parseInt(document.getElementById('editSets').value);
-            if (!weight || !reps || !sets) {
+
+            if (!weight || !reps) {
                 alert('すべての項目を入力してください');
                 return;
             }
+
             workoutHistory[editingIndex].weight = weight;
             workoutHistory[editingIndex].reps = reps;
-            workoutHistory[editingIndex].sets = sets;
-            workoutHistory[editingIndex].volume = weight * reps * sets;
-            localStorage.setItem('workoutHistory_v6', JSON.stringify(workoutHistory));
+            workoutHistory[editingIndex].volume = weight * reps;
+            
+            localStorage.setItem('workoutHistory_v7', JSON.stringify(workoutHistory));
+            
             closeEditModal();
             updateHistory();
             showMessage('✅ 記録を更新しました', 'success');
@@ -978,7 +1142,7 @@
         function deleteWorkout(index) {
             if (confirm('この記録を削除しますか？')) {
                 workoutHistory.splice(index, 1);
-                localStorage.setItem('workoutHistory_v6', JSON.stringify(workoutHistory));
+                localStorage.setItem('workoutHistory_v7', JSON.stringify(workoutHistory));
                 updateHistory();
                 showMessage('✅ 記録を削除しました', 'success');
             }
@@ -989,7 +1153,9 @@
                 showMessage('エクスポートする記録がありません', 'error');
                 return;
             }
+
             let markdown = `# 🏋️ 筋トレ記録\n\n最終更新: ${new Date().toLocaleString('ja-JP')}\n\n---\n\n`;
+            
             const bodyPartGroups = {};
             workoutHistory.forEach(w => {
                 const bodyPart = exerciseStrategies[w.exercise]?.bodyPart || 'その他';
@@ -997,48 +1163,42 @@
                 if (!bodyPartGroups[bodyPart][w.exercise]) bodyPartGroups[bodyPart][w.exercise] = [];
                 bodyPartGroups[bodyPart][w.exercise].push(w);
             });
+
             const bodyPartOrder = ['胸', '背中', '脚', '肩', '腕', '腹筋', 'その他'];
+            
             bodyPartOrder.forEach(bodyPart => {
                 if (bodyPartGroups[bodyPart]) {
                     markdown += `# ${bodyPart}\n\n`;
+                    
                     for (const [exercise, workouts] of Object.entries(bodyPartGroups[bodyPart])) {
                         const strategy = exerciseStrategies[exercise];
                         markdown += `## ${exercise}\n\n`;
+                        
                         if (strategy) {
                             markdown += `**種目情報**\n- タイプ: ${strategy.type === 'compound' ? 'コンパウンド' : 'アイソレーション'}\n- 推奨回数: ${strategy.repRange}回\n- 戦略: ${strategy.strategy}\n\n`;
                         }
-                        markdown += `| 日時 | 重量 | 回数 | セット数 | 総負荷量 |\n|------|------|------|----------|----------|\n`;
+                        
+                        markdown += `| 日時 | 重量 | 回数 | 総負荷量 |\n|------|------|------|----------|\n`;
+                        
                         workouts.forEach(w => {
                             const date = new Date(w.date);
                             const dateStr = `${date.getMonth()+1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}`;
-                            markdown += `| ${dateStr} | ${w.weight}kg | ${w.reps}回 | ${w.sets}セット | ${w.volume}kg |\n`;
+                            markdown += `| ${dateStr} | ${w.weight}kg | ${w.reps}回 | ${w.volume}kg |\n`;
                         });
-                        if (workouts.length >= 1) {
-                            const latest = workouts[0];
-                            if (workouts.length >= 2) {
-                                const previous = workouts[1];
-                                const progress = ((latest.volume - previous.volume) / previous.volume * 100).toFixed(1);
-                                markdown += `\n**最新の進捗:** `;
-                                if (progress > 0) {
-                                    markdown += `📈 前回比 +${progress}% (良好！)\n`;
-                                } else if (progress < 0) {
-                                    markdown += `📉 前回比 ${progress}%\n`;
-                                } else {
-                                    markdown += `➡️ 前回と同じ\n`;
-                                }
-                            }
-                            const maxWeight = Math.max(...workouts.map(w => w.weight));
-                            markdown += `**最大重量記録:** ${maxWeight}kg\n\n`;
-                        }
+
+                        const maxWeight = Math.max(...workouts.map(w => w.weight));
+                        markdown += `\n**最大重量記録:** ${maxWeight}kg\n\n`;
                         markdown += `\n`;
                     }
                 }
             });
+
             markdown += `---\n\n## 📊 統計情報\n\n- **総トレーニング回数:** ${workoutHistory.length}回\n`;
             const uniqueExercises = [...new Set(workoutHistory.map(w => w.exercise))];
             markdown += `- **記録している種目数:** ${uniqueExercises.length}種目\n`;
             const totalVolume = workoutHistory.reduce((sum, w) => sum + w.volume, 0);
             markdown += `- **累計総負荷量:** ${totalVolume.toLocaleString()}kg\n`;
+
             const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -1046,6 +1206,7 @@
             a.download = `workout-log-${new Date().toISOString().split('T')[0]}.md`;
             a.click();
             URL.revokeObjectURL(url);
+            
             showMessage('✅ マークダウン形式でエクスポートしました！', 'success');
         }
 
@@ -1054,7 +1215,7 @@
                 workoutHistory = [];
                 todaySets = [];
                 currentExercise = '';
-                localStorage.removeItem('workoutHistory_v6');
+                localStorage.removeItem('workoutHistory_v7');
                 updateCharts();
                 updateHistory();
                 document.getElementById('suggestionSection').style.display = 'none';
