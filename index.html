@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>筋トレ記録 & オーバーロード提案アプリ</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #999;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .three-cols {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .record-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+            margin-top: 10px;
+        }
+
+        .record-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .suggestion-section {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .suggestion-section h2 {
+            color: #d35400;
+            margin-bottom: 20px;
+        }
+
+        .suggestion-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .suggestion-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .suggestion-item {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .charts-section {
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .chart-container h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .history-section {
+            margin-top: 30px;
+        }
+
+        .history-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .history-group {
+            margin-bottom: 25px;
+        }
+
+        .history-group h3 {
+            color: #764ba2;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 8px;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .history-item strong {
+            color: #667eea;
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+            margin-right: 10px;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(56, 239, 125, 0.4);
+        }
+
+        .clear-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .clear-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .exercise-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #1565c0;
+            display: none;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #667eea;
+            color: white;
+            border-radius: 5px;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .asuka-comment {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border-left: 5px solid #e17055;
+            font-size: 16px;
+            font-weight: bold;
+            color: #2d3436;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .asuka-comment::before {
+            content: "👧 明日香: ";
+            color: #e17055;
+        }
+
+        .previous-set-info {
+            background: #e8f5e9;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💪 筋トレ記録アプリ</h1>
+        <p class="subtitle">科学的なオーバーロード提案で効率的に成長</p>
+
+        <div id="message" class="message"></div>
+        <div id="asukaComment" class="asuka-comment" style="display: none;"></div>
+
+        <!-- 入力セクション -->
+        <div class="input-section">
+            <h2 style="color: #667eea; margin-bottom: 20px;">📝 トレーニング記録</h2>
+            
+            <div class="input-group">
+                <label>種目を選択</label>
+                <select id="exercise" onchange="showExerciseInfo()">
+                    <option value="">-- 種目を選択 --</option>
+                    <optgroup label="胸">
+                        <option value="ベンチプレス">ベンチプレス</option>
+                        <option value="インクラインベンチプレス">インクラインベンチプレス</option>
+                        <option value="ダンベルフライ">ダンベルフライ</option>
+                    </optgroup>
+                    <optgroup label="背中">
+                        <option value="デッドリフト">デッドリフト</option>
+                        <option value="ラットプルダウン">ラットプルダウン</option>
+                        <option value="ベントオーバーロウ">ベントオーバーロウ</option>
+                        <option value="懸垂">懸垂</option>
+                    </optgroup>
+                    <optgroup label="脚">
+                        <option value="スクワット">スクワット</option>
+                        <option value="レッグプレス">レッグプレス</option>
+                        <option value="レッグカール">レッグカール</option>
+                        <option value="レッグエクステンション">レッグエクステンション</option>
+                    </optgroup>
+                    <optgroup label="肩">
+                        <option value="ショルダープレス">ショルダープレス</option>
+                        <option value="サイドレイズ">サイドレイズ</option>
+                        <option value="リアデルト">リアデルト</option>
+                    </optgroup>
+                    <optgroup label="腕">
+                        <option value="バーベルカール">バーベルカール</option>
+                        <option value="トライセプスプレスダウン">トライセプスプレスダウン</option>
+                        <option value="ダンベルカール">ダンベルカール</option>
+                    </optgroup>
+                </select>
+                <div id="exerciseInfo" class="exercise-info"></div>
+                <div id="previousSetInfo" class="previous-set-info" style="display: none;"></div>
+            </div>
+
+            <div class="three-cols">
+                <div class="input-group">
+                    <label>重量 (kg)</label>
+                    <input type="number" id="weight" placeholder="50" step="0.5" min="0">
+                </div>
+                <div class="input-group">
+                    <label>回数</label>
+                    <input type="number" id="reps" placeholder="10" min="1">
+                </div>
+                <div class="input-group">
+                    <label>セット数</label>
+                    <input type="number" id="sets" placeholder="3" min="1">
+                </div>
+            </div>
+
+            <button class="record-btn" onclick="recordWorkout()">記録する</button>
+        </div>
+
+        <!-- オーバーロード提案 -->
+        <div id="suggestionSection" class="suggestion-section">
+            <h2>📈 次回のオーバーロード提案</h2>
+            <div id="suggestionContent"></div>
+        </div>
+
+        <!-- グラフセクション -->
+        <div class="charts-section">
+            <div class="chart-container">
+                <h3>📊 総負荷量の推移</h3>
+                <canvas id="volumeChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>🏋️ 種目別パフォーマンス</h3>
+                <canvas id="exerciseChart"></canvas>
+            </div>
+        </div>
+
+        <!-- ボタン -->
+        <div class="button-group">
+            <button class="export-btn" onclick="exportToMarkdown()">マークダウンでエクスポート</button>
+            <button class="clear-btn" onclick="clearAllData()">全データクリア</button>
+        </div>
+
+        <!-- 履歴 -->
+        <div class="history-section">
+            <h2>📚 トレーニング履歴</h2>
+            <div id="historyContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // 明日香のコメント集
+        const asukaComments = {
+            success: [
+                "やるじゃない！前回より重量上がってるわよ！アタシが指導した甲斐があったわね！",
+                "当然の結果ね！アタシの言う通りにやればこうなるのよ！次も期待してるわ！",
+                "ふん、まあまあじゃない。アタシならもっと余裕だけど...でも、悪くないわ！",
+                "見なさいよ！オーバーロード成功！アンタもやればできるじゃない！",
+                "完璧！さすがアタシが教えてる生徒ね！この調子で突き進みなさい！",
+                "ちょっと、アンタ才能あるかもね！...べ、別に褒めてるわけじゃないんだから！",
+                "いいわよその調子！アタシに追いつけるように頑張りなさい！まだまだだけどね！",
+                "へぇ、やるじゃない！でもアタシと比べたらまだまだよ！もっと上を目指しなさい！",
+                "素晴らしいわ！この調子ならアンタも一流になれるかもね！...アタシほどじゃないけど。",
+                "パーフェクト！アタシが見込んだだけあるわ！次はもっと高みを目指すわよ！"
+            ],
+            failure: [
+                "ちょっと！何やってんのよ！...まあ、疲れてる日もあるわよね。今日は休みなさい。",
+                "はぁ？前回と同じ？...べ、別に気にすることないわよ！次頑張ればいいんだから！",
+                "アンタ、無理してない？...バカね、怪我したら元も子もないでしょ！",
+                "ふん、調子悪いの？しょうがないわね...栄養と睡眠はちゃんと取りなさいよ！",
+                "ダメダメね！...って言いたいとこだけど、オーバートレーニングよりマシよ。",
+                "あーあ、重量上がんなかったわね。でも無理して怪我するよりいいわ。次！",
+                "何よその記録！...ま、まあ体調悪い日もあるわよね。次は本気出しなさいよ！",
+                "ちょっとー！もっと気合い入れなさいよ！...って、体調悪そうね。今日は許してあげる。",
+                "はぁ...アンタらしくないわね。疲れてるなら素直に休みなさい！アタシが言うんだから！",
+                "前回超えられなかった？別にいいわよ！継続が大事なんだから！...わかってるでしょうね！"
+            ]
+        };
+
+        // 種目ごとのオーバーロード戦略
+        const exerciseStrategies = {
+            'ベンチプレス': {
+                type: 'compound',
+                repRange: '5-8',
+                description: 'BIG3の一つ。重量重視で2.5kg刻みで増加。',
+                strategy: '重量を優先的に増やす',
+                weightIncrements: [2.5, 1.25, 5],
+                tips: 'フォーム維持が最優先。肩を下げて胸を張る。',
+                bodyPart: '胸'
+            },
+            'インクラインベンチプレス': {
+                type: 'compound',
+                repRange: '6-10',
+                description: '上部胸筋狙い。通常のベンチより軽めの重量。',
+                strategy: '回数と重量をバランスよく',
+                weightIncrements: [2.5, 1.25],
+                tips: '角度は30-45度が最適。',
+                bodyPart: '胸'
+            },
+            'ダンベルフライ': {
+                type: 'isolation',
+                repRange: '10-15',
+                description: '胸筋のストレッチ種目。コントロール重視。',
+                strategy: '回数を優先的に増やす',
+                weightIncrements: [2.5, 1.25],
+                tips: 'ゆっくり降ろして胸のストレッチを感じる。',
+                bodyPart: '胸'
+            },
+            'デッドリフト': {
+                type: 'compound',
+                repRange: '3-6',
+                description: 'BIG3の王様。全身を使う高重量種目。',
+                strategy: '重量を優先的に増やす',
+                weightIncrements: [5, 2.5, 10],
+                tips: '背中を丸めない。腰を守るためベルト推奨。',
+                bodyPart: '背中'
+            },
+            'ラットプルダウン': {
+                type: 'compound',
+                repRange: '8-12',
+                description: '背中の広がりを作る。懸垂の代替種目。',
+                strategy: '回数と重量をバランスよく',
+                weightIncrements: [2.5, 5],
+                tips: '肩甲骨を寄せて胸に引く意識。',
+                bodyPart: '背中'
+            },
+            'ベントオーバーロウ': {
+                type: 'compound',
+                repRange: '6-10',
+                description: '背中の厚みを作る。腰への負担に注意。',
+                strategy: '重量を優先的に増やす',
+                weightIncrements: [2.5, 5],
+                tips: '膝を軽く曲げて背中はまっすぐ。',
+                bodyPart: '背中'
+            },
+            '懸垂': {
+                type: 'compound',
+                repRange: '5-12',
+                description: '自重トレーニングの王道。加重で負荷調整。',
+                strategy: '回数を優先的に増やす',
+                weightIncrements: [2.5, 5],
+                tips: '完全に降ろして完全に上げる。',
+                bodyPart: '背中'
+            },
+            'スクワット': {
+                type: 'compound',
+                repRange: '5-8',
+                description: 'BIG3の一つ。下半身全体を鍛える。',
+                strategy: '重量を優先的に増やす',
+                weightIncrements: [5, 2.5, 10],
+                tips: '膝がつま先より前に出ないように。深く降ろす。',
+                bodyPart: '脚'
+            },
+            'レッグプレス': {
+                type: 'compound',
+                repRange: '8-12',
+                description: '腰への負担が少ない脚種目。高重量可能。',
+                strategy: '重量を優先的に増やす',
+                weightIncrements: [5, 10, 2.5],
+                tips: '膝を完全にロックしない。',
+                bodyPart: '脚'
+            },
+            'レッグカール': {
+                type: 'isolation',
+                repRange: '10-15',
+                description: 'ハムストリング集中。コントロール重視。',
+                strategy: '回数を優先的に増やす',
+                weightIncrements: [2.5, 5],
+                tips: 'ゆっくり降ろしてストレッチを感じる。',
+                bodyPart: '脚'
+            },
+            'レッグエクステンション': {
+                type: 'isolation',
+                repRange: '10-15',
+                description: '大腿四頭筋集中。膝に負担かかりやすい。',
+                strategy: '回数を優先的に増やす',
+                weightIncrements: [2.5, 5],
+                tips: '重すぎる重量は膝を痛める。',
+                bodyPart: '脚'
+            },
+            'ショルダープレス': {
+                type: 'compound',
+                repRange: '6-10',
+                description: '肩全体を鍛える基本種目。',
+                strategy: '重量と回数をバランスよく',
+                weightIncrements: [2.5, 1.25],
+                tips: '肩をすくめない。コアを締める。',
+                bodyPart: '肩'
+            },
+            'サイドレイズ': {
+                type: 'isolation',
+                repRange: '12-20',
+                description: '肩幅を作る。軽い重量で高回数。',
+                strategy: '回数を優先的に増やす',
+                weightIncrements: [1, 1.25],
+                tips: '反動を使わない。肘を軽く曲げる。',
+                bodyPart: '肩'
+            },
+            'リアデルト': {
+                type: 'isolation',
+                repRange: '12-20',
+                description: '後部三角筋。姿勢改善にも重要。',
+                strategy: '回数を優先的に増やす',
+                weightIncrements: [1, 1.25],
+                tips: '軽い重量でしっかり効かせる。',
+                bodyPart: '肩'
+            },
+            'バーベルカール': {
+                type: 'isolation',
+                repRange: '8-12',
+                description: '上腕二頭筋。反動を使わない。',
+                strategy: '回数を優先的に増やす',
+                weightIncrements: [2.5, 1.25],
+                tips: '肘の位置を固定。体を揺らさない。',
+                bodyPart: '腕'
+            },
+            'トライセプスプレスダウン': {
+                type: 'isolation',
+                repRange: '10-15',
+                description: '上腕三頭筋。コントロール重視。',
+                strategy: '回数を優先的に増やす',
+                weightIncrements: [2.5, 5],
+                tips: '肘を体に固定。伸ばしきる。',
+                bodyPart: '腕'
+            },
+            'ダンベルカール': {
+                type: 'isolation',
+                repRange: '10-15',
+                description: '上腕二頭筋。片腕ずつ集中可能。',
+                strategy: '回数を優先的に増やす',
+                weightIncrements: [2.5, 1.25],
+                tips: 'ネガティブ動作をゆっくり。',
+                bodyPart: '腕'
+            }
+        };
+
+        let workoutHistory = JSON.parse(localStorage.getItem('workoutHistory_v4')) || [];
+        let volumeChart = null;
+        let exerciseChart = null;
+
+        function getRandomComment(type) {
+            const comments = asukaComments[type];
+            return comments[Math.floor(Math.random() * comments.length)];
+        }
+
+        function showAsukaComment(isOverload) {
+            const commentDiv = document.getElementById('asukaComment');
+            const comment = getRandomComment(isOverload ? 'success' : 'failure');
+            commentDiv.textContent = comment;
+            commentDiv.style.display = 'block';
+            
+            // 5秒後に非表示
+            setTimeout(() => {
+                commentDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function showExerciseInfo() {
+            const exercise = document.getElementById('exercise').value;
+            const infoDiv = document.getElementById('exerciseInfo');
+            const prevSetDiv = document.getElementById('previousSetInfo');
+            
+            if (exercise && exerciseStrategies[exercise]) {
+                const info = exerciseStrategies[exercise];
+                infoDiv.style.display = 'block';
+                infoDiv.innerHTML = `
+                    <strong>${exercise}</strong><br>
+                    <span class="badge">${info.type === 'compound' ? 'コンパウンド' : 'アイソレーション'}</span>
+                    <span class="badge">推奨回数: ${info.repRange}</span><br>
+                    ${info.description}<br>
+                    💡 ${info.tips}
+                `;
+
+                // 前回のセット情報を表示
+                const sameExercise = workoutHistory.filter(w => w.exercise === exercise);
+                if (sameExercise.length > 0) {
+                    const lastWorkout = sameExercise[0];
+                    prevSetDiv.style.display = 'block';
+                    prevSetDiv.innerHTML = `
+                        📋 <strong>前回の記録:</strong> ${lastWorkout.weight}kg × ${lastWorkout.reps}回 × ${lastWorkout.sets}セット
+                    `;
+                    
+                    // 自動入力
+                    document.getElementById('weight').value = lastWorkout.weight;
+                    document.getElementById('reps').value = lastWorkout.reps;
+                    document.getElementById('sets').value = lastWorkout.sets;
+                } else {
+                    prevSetDiv.style.display = 'none';
+                }
+            } else {
+                infoDiv.style.display = 'none';
+                prevSetDiv.style.display = 'none';
+            }
+        }
+
+        function recordWorkout() {
+            const exercise = document.getElementById('exercise').value;
+            const weight = parseFloat(document.getElementById('weight').value);
+            const reps = parseInt(document.getElementById('reps').value);
+            const sets = parseInt(document.getElementById('sets').value);
+
+            if (!exercise || !weight || !reps || !sets) {
+                showMessage('すべての項目を入力してください', 'error');
+                return;
+            }
+
+            const workout = {
+                date: new Date().toISOString(),
+                exercise,
+                weight,
+                reps,
+                sets,
+                volume: weight * reps * sets
+            };
+
+            workoutHistory.unshift(workout);
+            localStorage.setItem('workoutHistory_v4', JSON.stringify(workoutHistory));
+
+            // オーバーロード判定
+            const sameExercise = workoutHistory.filter(w => w.exercise === exercise);
+            const previousWorkout = sameExercise.length > 1 ? sameExercise[1] : null;
+            
+            let isOverload = false;
+            if (previousWorkout) {
+                isOverload = workout.volume > previousWorkout.volume;
+            }
+            
+            showAsukaComment(isOverload);
+            showSuggestion(workout);
+            updateCharts();
+            updateHistory();
+            showMessage('✅ トレーニングを記録しました！', 'success');
+
+            // フォームをクリア
+            document.getElementById('weight').value = '';
+            document.getElementById('reps').value = '';
+            document.getElementById('sets').value = '';
+        }
+
+        function showSuggestion(workout) {
+            const strategy = exerciseStrategies[workout.exercise];
+            const section = document.getElementById('suggestionSection');
+            const content = document.getElementById('suggestionContent');
+            
+            section.style.display = 'block';
+            
+            const currentVolume = workout.volume;
+            
+            // 過去の同じ種目の記録を取得
+            const sameExercise = workoutHistory.filter(w => w.exercise === workout.exercise);
+            const previousWorkout = sameExercise.length > 1 ? sameExercise[1] : null;
+            
+            let progressText = '';
+            if (previousWorkout) {
+                const progress = ((currentVolume - previousWorkout.volume) / previousWorkout.volume * 100).toFixed(1);
+                if (progress > 0) {
+                    progressText = `<div class="suggestion-item">📈 前回比: <strong>+${progress}%</strong> 素晴らしい！</div>`;
+                } else if (progress < 0) {
+                    progressText = `<div class="suggestion-item">📉 前回比: <strong>${progress}%</strong> 疲労や体調を考慮しましょう</div>`;
+                } else {
+                    progressText = `<div class="suggestion-item">➡️ 前回と同じ負荷</div>`;
+                }
+            }
+            
+            content.innerHTML = `
+                <div class="suggestion-card">
+                    <h3>${workout.exercise}</h3>
+                    <div class="suggestion-item">
+                        <strong>今回の記録:</strong> ${workout.weight}kg × ${workout.reps}回 × ${workout.sets}セット<br>
+                        <strong>総負荷量:</strong> ${currentVolume}kg
+                    </div>
+                    ${progressText}
+                    <div class="suggestion-item">
+                        <strong>オーバーロード戦略:</strong> ${strategy.strategy}<br>
+                        <strong>推奨回数範囲:</strong> ${strategy.repRange}回
+                    </div>
+                </div>
+                
+                <div class="suggestion-card">
+                    <h3>次回のトレーニング提案</h3>
+                    ${generateSuggestions(workout, strategy)}
+                </div>
+            `;
+        }
+
+        function generateSuggestions(workout, strategy) {
+            const suggestions = [];
+            
+            // 複数の重量増加オプションを提案
+            strategy.weightIncrements.forEach((increment, index) => {
+                const newWeight = workout.weight + increment;
+                const volumeWeight = newWeight * workout.reps * workout.sets;
+                suggestions.push({
+                    title: `重量を+${increment}kg増やす`,
+                    desc: `${newWeight}kg × ${workout.reps}回 × ${workout.sets}セット`,
+                    volume: volumeWeight,
+                    increase: ((volumeWeight - workout.volume) / workout.volume * 100).toFixed(1),
+                    priority: (index === 0 && strategy.strategy.includes('重量')) ? '⭐ 推奨' : ''
+                });
+            });
+            
+            // 回数を増やすオプション（1回と2回）
+            [1, 2].forEach((repIncrease, index) => {
+                const newReps = workout.reps + repIncrease;
+                const volumeReps = workout.weight * newReps * workout.sets;
+                suggestions.push({
+                    title: `回数を+${repIncrease}回増やす`,
+                    desc: `${workout.weight}kg × ${newReps}回 × ${workout.sets}セット`,
+                    volume: volumeReps,
+                    increase: ((volumeReps - workout.volume) / workout.volume * 100).toFixed(1),
+                    priority: (index === 0 && strategy.strategy.includes('回数')) ? '⭐ 推奨' : ''
+                });
+            });
+            
+            // セット数を増やす
+            const newSets = workout.sets + 1;
+            const volumeSets = workout.weight * workout.reps * newSets;
+            suggestions.push({
+                title: 'セット数を増やす',
+                desc: `${workout.weight}kg × ${workout.reps}回 × ${newSets}セット`,
+                volume: volumeSets,
+                increase: ((volumeSets - workout.volume) / workout.volume * 100).toFixed(1),
+                priority: ''
+            });
+
+            // 重量と回数の組み合わせ
+            const smallWeightInc = strategy.weightIncrements[1] || strategy.weightIncrements[0];
+            const combinedWeight = workout.weight + smallWeightInc;
+            const combinedReps = workout.reps + 1;
+            const volumeCombined = combinedWeight * combinedReps * workout.sets;
+            suggestions.push({
+                title: '重量と回数を両方増やす',
+                desc: `${combinedWeight}kg × ${combinedReps}回 × ${workout.sets}セット`,
+                volume: volumeCombined,
+                increase: ((volumeCombined - workout.volume) / workout.volume * 100).toFixed(1),
+                priority: strategy.strategy.includes('バランス') ? '⭐ 推奨' : ''
+            });
+            
+            return suggestions.map((s, i) => `
+                <div class="suggestion-item">
+                    <strong>オプション${i + 1}: ${s.title} ${s.priority}</strong><br>
+                    ${s.desc}<br>
+                    総負荷量: ${s.volume.toFixed(1)}kg (+${s.increase}%)
+                </div>
+            `).join('');
+        }
+
+        function updateCharts() {
+            updateVolumeChart();
+            updateExerciseChart();
+        }
+
+        function updateVolumeChart() {
+            const ctx = document.getElementById('volumeChart').getContext('2d');
+            
+            // 日付でグループ化
+            const dateGroups = {};
+            workoutHistory.forEach(w => {
+                const date = new Date(w.date).toLocaleDateString('ja-JP');
+                if (!dateGroups[date]) {
+                    dateGroups[date] = 0;
+                }
+                dateGroups[date] += w.volume;
+            });
+            
+            const dates = Object.keys(dateGroups).reverse().slice(-10);
+            const volumes = dates.map(d => dateGroups[d]);
+            
+            if (volumeChart) {
+                volumeChart.destroy();
+            }
+            
+            volumeChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: '総負荷量 (kg)',
+                        data: volumes,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateExerciseChart() {
+            const ctx = document.getElementById('exerciseChart').getContext('2d');
+            
+            // 種目ごとの最大重量を集計
+            const exerciseMax = {};
+            workoutHistory.forEach(w => {
+                if (!exerciseMax[w.exercise] || w.weight > exerciseMax[w.exercise]) {
+                    exerciseMax[w.exercise] = w.weight;
+                }
+            });
+            
+            const exercises = Object.keys(exerciseMax);
+            const maxWeights = exercises.map(e => exerciseMax[e]);
+            
+            if (exerciseChart) {
+                exerciseChart.destroy();
+            }
+            
+            exerciseChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: exercises,
+                    datasets: [{
+                        label: '最大重量 (kg)',
+                        data: maxWeights,
+                        backgroundColor: 'rgba(102, 126, 234, 0.7)',
+                        borderColor: '#667eea',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateHistory() {
+            const content = document.getElementById('historyContent');
+            
+            if (workoutHistory.length === 0) {
+                content.innerHTML = '<p style="color: #999;">まだトレーニング記録がありません</p>';
+                return;
+            }
+            
+            // 部位ごとにグループ化
+            const bodyPartGroups = {};
+            workoutHistory.forEach(w => {
+                const bodyPart = exerciseStrategies[w.exercise]?.bodyPart || 'その他';
+                if (!bodyPartGroups[bodyPart]) {
+                    bodyPartGroups[bodyPart] = [];
+                }
+                bodyPartGroups[bodyPart].push(w);
+            });
+
+            // 部位の順序
+            const bodyPartOrder = ['胸', '背中', '脚', '肩', '腕', 'その他'];
+            
+            let html = '';
+            bodyPartOrder.forEach(bodyPart => {
+                if (bodyPartGroups[bodyPart] && bodyPartGroups[bodyPart].length > 0) {
+                    html += `<div class="history-group">`;
+                    html += `<h3>💪 ${bodyPart}</h3>`;
+                    
+                    bodyPartGroups[bodyPart].slice(0, 10).forEach(w => {
+                        const date = new Date(w.date);
+                        html += `
+                            <div class="history-item">
+                                <strong>${w.exercise}</strong><br>
+                                ${date.toLocaleDateString('ja-JP')} ${date.toLocaleTimeString('ja-JP', {hour: '2-digit', minute: '2-digit'})}<br>
+                                ${w.weight}kg × ${w.reps}回 × ${w.sets}セット<br>
+                                <span style="color: #667eea;">総負荷量: ${w.volume}kg</span>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `</div>`;
+                }
+            });
+            
+            content.innerHTML = html;
+        }
+
+        function exportToMarkdown() {
+            if (workoutHistory.length === 0) {
+                showMessage('エクスポートする記録がありません', 'error');
+                return;
+            }
+            
+            let markdown = `# 🏋️ 筋トレ記録\n\n`;
+            markdown += `最終更新: ${new Date().toLocaleString('ja-JP')}\n\n`;
+            markdown += `---\n\n`;
+            
+            // 部位ごとにグループ化
+            const bodyPartGroups = {};
+            workoutHistory.forEach(w => {
+                const bodyPart = exerciseStrategies[w.exercise]?.bodyPart || 'その他';
+                if (!bodyPartGroups[bodyPart]) {
+                    bodyPartGroups[bodyPart] = {};
+                }
+                if (!bodyPartGroups[bodyPart][w.exercise]) {
+                    bodyPartGroups[bodyPart][w.exercise] = [];
+                }
+                bodyPartGroups[bodyPart][w.exercise].push(w);
+            });
+
+            // 部位の順序
+            const bodyPartOrder = ['胸', '背中', '脚', '肩', '腕', 'その他'];
+            
+            bodyPartOrder.forEach(bodyPart => {
+                if (bodyPartGroups[bodyPart]) {
+                    markdown += `# ${bodyPart}\n\n`;
+                    
+                    for (const [exercise, workouts] of Object.entries(bodyPartGroups[bodyPart])) {
+                        const strategy = exerciseStrategies[exercise];
+                        markdown += `## ${exercise}\n\n`;
+                        
+                        if (strategy) {
+                            markdown += `**種目情報**\n`;
+                            markdown += `- タイプ: ${strategy.type === 'compound' ? 'コンパウンド' : 'アイソレーション'}\n`;
+                            markdown += `- 推奨回数: ${strategy.repRange}回\n`;
+                            markdown += `- 戦略: ${strategy.strategy}\n\n`;
+                        }
+                        
+                        markdown += `| 日時 | 重量 | 回数 | セット数 | 総負荷量 |\n`;
+                        markdown += `|------|------|------|----------|----------|\n`;
+                        
+                        workouts.forEach(w => {
+                            const date = new Date(w.date);
+                            const dateStr = `${date.getMonth()+1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}`;
+                            markdown += `| ${dateStr} | ${w.weight}kg | ${w.reps}回 | ${w.sets}セット | ${w.volume}kg |\n`;
+                        });
+                        
+                        // 進捗分析
+                        if (workouts.length >= 1) {
+                            const latest = workouts[0];
+                            
+                            if (workouts.length >= 2) {
+                                const previous = workouts[1];
+                                const progress = ((latest.volume - previous.volume) / previous.volume * 100).toFixed(1);
+                                
+                                markdown += `\n**最新の進捗:** `;
+                                if (progress > 0) {
+                                    markdown += `📈 前回比 +${progress}% (良好！)\n`;
+                                } else if (progress < 0) {
+                                    markdown += `📉 前回比 ${progress}%\n`;
+                                } else {
+                                    markdown += `➡️ 前回と同じ\n`;
+                                }
+                            }
+                            
+                            // 最大重量
+                            const maxWeight = Math.max(...workouts.map(w => w.weight));
+                            markdown += `**最大重量記録:** ${maxWeight}kg\n\n`;
+                        }
+                        
+                        markdown += `\n`;
+                    }
+                }
+            });
+            
+            // 統計
+            markdown += `---\n\n`;
+            markdown += `## 📊 統計情報\n\n`;
+            markdown += `- **総トレーニング回数:** ${workoutHistory.length}回\n`;
+            
+            const uniqueExercises = [...new Set(workoutHistory.map(w => w.exercise))];
+            markdown += `- **記録している種目数:** ${uniqueExercises.length}種目\n`;
+            
+            const totalVolume = workoutHistory.reduce((sum, w) => sum + w.volume, 0);
+            markdown += `- **累計総負荷量:** ${totalVolume.toLocaleString()}kg\n`;
+            
+            // ダウンロード
+            const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `workout-log-${new Date().toISOString().split('T')[0]}.md`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showMessage('✅ マークダウン形式でエクスポートしました！', 'success');
+        }
+
+        function clearAllData() {
+            if (confirm('本当に全データを削除しますか？この操作は取り消せません。')) {
+                workoutHistory = [];
+                localStorage.removeItem('workoutHistory_v4');
+                updateCharts();
+                updateHistory();
+                document.getElementById('suggestionSection').style.display = 'none';
+                showMessage('✅ 全データを削除しました', 'success');
+            }
+        }
+
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = `message ${type}`;
+            msg.style.display = 'block';
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 3000);
+        }
+
+        // 初期化
+        window.onload = function() {
+            updateCharts();
+            updateHistory();
+        };
+    </script>
+</body>
+</html>
